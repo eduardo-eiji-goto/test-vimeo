@@ -76,7 +76,6 @@ function processInput(url) {
 
 button {
     margin: 0;
-    border: 0;
     margin-top: 1rem;
     width: 100%;
 }
