@@ -1,27 +1,81 @@
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
-let video_id = ref("1087183197");
-let share_id = ref("af96c600c3");
+const video_id = ref("");
+const share_id = ref("");
+const url = ref("");
+const share_url = computed(() => {
+    return `https://vimeo.com/${video_id.value}/${share_id.value}`;
+});
+const embed_url = computed(() => {
+    return `https://player.vimeo.com/video/${video_id.value}?h=${share_id.value}`;
+});
+
+const err = ref("");
+
+function processInput(url) {
+    try {
+        video_id.value = "";
+        share_id.value = "";
+        err.value = "";
+
+        let urlLocal = new URL(url);
+        console.log(urlLocal);
+
+        if (urlLocal.host !== "vimeo.com") {
+            throw new Error("URL provided is not Vimeo!!!");
+        }
+
+        let pathRoute = urlLocal.pathname.split("/").reverse();
+
+        if (pathRoute.length !== 3) {
+            throw new Error("URL provided is malformed!!!");
+        }
+
+        video_id.value = pathRoute[1];
+        share_id.value = pathRoute[0];
+    } catch (error) {
+        err.value = error;
+    }
+}
 </script>
 
 <template>
-    <h2>https://vimeo.com/${video_id}/${share_id}</h2>
-    <a
-        :href="`https://vimeo.com/${video_id}/${share_id}`"
-        target="_blank"
-        rel="noopener noreferrer"
-    >
-        Share Link
-    </a>
+    <h1>Awesome Vimeo URL Generator</h1>
 
-    <br />
+    <input v-model="url" type="url" name="url-input" id="url-input" />
 
-    <h2>https://player.vimeo.com/video/${video_id}?h=${share_id}</h2>
-    <iframe
-        :src="`https://player.vimeo.com/video/${video_id}?h=${share_id}`"
-        frameborder="0"
-    />
+    <button @click="processInput(url)">Generate</button>
+
+    <template v-if="share_id && video_id">
+        <h2>Share Link:</h2>
+        <a :href="share_url" target="_blank" rel="noopener noreferrer">
+            {{ share_url }}
+        </a>
+
+        <br />
+
+        <h2>Embed Link:</h2>
+        <a :href="embed_url" target="_blank" rel="noopener noreferrer">
+            {{ embed_url }}
+        </a>
+    </template>
+
+    <template v-if="err">
+        <span>ERROR: {{ err }}</span>
+    </template>
 </template>
 
-<style scoped></style>
+<style scoped>
+#url-input {
+    width: 100%;
+    height: 2rem;
+}
+
+button {
+    margin: 0;
+    border: 0;
+    margin-top: 1rem;
+    width: 100%;
+}
+</style>
