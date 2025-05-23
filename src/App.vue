@@ -59,6 +59,8 @@ function processInput(url) {
         <a :href="embed_url" target="_blank" rel="noopener noreferrer">
             {{ embed_url }}
         </a>
+
+        <iframe :src="embed_url" frameborder="0"></iframe>
     </template>
 
     <template v-if="err">
